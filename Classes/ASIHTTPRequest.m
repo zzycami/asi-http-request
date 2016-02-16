@@ -23,6 +23,8 @@
 #import "ASIDataDecompressor.h"
 #import "ASIDataCompressor.h"
 
+#import "nslookup.h"
+
 // Automatically set on build
 NSString *ASIHTTPRequestVersion = @"v1.8.1-61 2011-09-19";
 
@@ -898,6 +900,25 @@ static NSOperationQueue *sharedQueue = nil;
 		if (request) {
 			CFRelease(request);
 		}
+        
+        NSString *urlStr = [[self url] absoluteString];
+        NSURL *realURL = [self url];
+        
+        if ([self DNSdomain]) {
+            //dnslookup
+            char const *apphost = [[[self url] host] UTF8String];
+            const char *dnsdomain = [[self DNSdomain] UTF8String];
+            char *ipaddr = (char *)malloc(16);
+            nslookup(apphost, dnsdomain, ipaddr);
+            [self setTargethost: [NSString stringWithUTF8String:ipaddr]];
+            if (strlen(ipaddr) >  0) {
+                realURL = [NSURL URLWithString:[urlStr stringByReplacingOccurrencesOfString:[[self url] host] withString:[self targethost]]];
+                //close https cert validate in IOS9.0
+                [self setValidatesSecureCertificate:NO];
+            }
+            
+            free(ipaddr);
+        }
 
 		// Create a new HTTP request.
 		request = CFHTTPMessageCreateRequest(kCFAllocatorDefault, (CFStringRef)[self requestMethod], (CFURLRef)[self url], [self useHTTPVersionOne] ? kCFHTTPVersion1_0 : kCFHTTPVersion1_1);

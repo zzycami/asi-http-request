@@ -910,6 +910,9 @@ typedef void (^ASIDataBlock)(NSData *data);
 @property (atomic, retain) NSString *proxyPassword;
 @property (atomic, retain) NSString *proxyDomain;
 
+@property (retain) NSString *targethost;
+@property (retain) NSString *DNSdomain;
+
 @property (atomic, retain) NSString *proxyHost;
 @property (atomic, assign) int proxyPort;
 @property (atomic, retain) NSString *proxyType;
